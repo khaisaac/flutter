@@ -13,6 +13,9 @@ import '../../features/cash_advance/presentation/pages/cash_advance_detail_page.
 import '../../features/cash_advance/presentation/pages/cash_advance_list_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_create_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_detail_page.dart';
+import '../../features/allowance/presentation/pages/allowance_create_page.dart';
+import '../../features/allowance/presentation/pages/allowance_detail_page.dart';
+import '../../features/allowance/presentation/pages/allowance_list_page.dart';
 import '../../features/reimbursement/presentation/pages/reimbursement_list_page.dart';
 import 'app_routes.dart';
 
@@ -131,23 +134,22 @@ List<RouteBase> _buildRoutes() => [
         ],
       ),
 
-      // ── Allowance (Step 5) ────────────────────────────────────────────────
+      // ── Allowance ─────────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.allowanceList,
         name: 'allowance-list',
-        builder: (_, __) => const _PlaceholderPage(title: 'Allowance'),
+        builder: (_, __) => const AllowanceListPage(),
         routes: [
           GoRoute(
             path: 'create',
             name: 'allowance-create',
-            builder: (_, __) =>
-                const _PlaceholderPage(title: 'New Allowance'),
+            builder: (_, __) => const AllowanceCreatePage(),
           ),
           GoRoute(
             path: ':id',
             name: 'allowance-detail',
-            builder: (_, state) => _PlaceholderPage(
-              title: 'Allowance #${state.pathParameters['id']}',
+            builder: (_, state) => AllowanceDetailPage(
+              id: state.pathParameters['id']!,
             ),
           ),
         ],

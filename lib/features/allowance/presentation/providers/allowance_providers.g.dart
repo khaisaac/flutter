@@ -59,6 +59,56 @@ final userAllowanceStreamProvider =
 
 typedef UserAllowanceStreamRef
     = AutoDisposeStreamProviderRef<List<AllowanceEntity>>;
+String _$createAllowanceUseCaseHash() =>
+    r'e5fcf283cb0be019d6a42c4c32b2317ce39a4413';
+
+/// See also [createAllowanceUseCase].
+@ProviderFor(createAllowanceUseCase)
+final createAllowanceUseCaseProvider =
+    Provider<CreateAllowanceUseCase>.internal(
+  createAllowanceUseCase,
+  name: r'createAllowanceUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$createAllowanceUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef CreateAllowanceUseCaseRef = ProviderRef<CreateAllowanceUseCase>;
+String _$submitAllowanceUseCaseHash() =>
+    r'4e12bbd89b7f56361a7984c2167e480c27bbd032';
+
+/// See also [submitAllowanceUseCase].
+@ProviderFor(submitAllowanceUseCase)
+final submitAllowanceUseCaseProvider =
+    Provider<SubmitAllowanceUseCase>.internal(
+  submitAllowanceUseCase,
+  name: r'submitAllowanceUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$submitAllowanceUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef SubmitAllowanceUseCaseRef = ProviderRef<SubmitAllowanceUseCase>;
+String _$getAllowanceUseCaseHash() =>
+    r'4a2ae916ba9d1298f608241e2a22038e8391bca6';
+
+/// See also [getAllowanceUseCase].
+@ProviderFor(getAllowanceUseCase)
+final getAllowanceUseCaseProvider = Provider<GetAllowanceUseCase>.internal(
+  getAllowanceUseCase,
+  name: r'getAllowanceUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getAllowanceUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef GetAllowanceUseCaseRef = ProviderRef<GetAllowanceUseCase>;
 String _$allowanceDetailStreamHash() =>
     r'8f184ccd6228bae6917c64aae2c7c702a4a68d98';
 
@@ -229,6 +279,23 @@ final allowanceListControllerProvider = AutoDisposeNotifierProvider<
 );
 
 typedef _$AllowanceListController = AutoDisposeNotifier<AllowanceListState>;
+String _$allowanceFormControllerHash() =>
+    r'67dfecddf4edcdbd6f1440c1bb0bcf15889c09d7';
+
+/// See also [AllowanceFormController].
+@ProviderFor(AllowanceFormController)
+final allowanceFormControllerProvider = AutoDisposeNotifierProvider<
+    AllowanceFormController, AllowanceFormState>.internal(
+  AllowanceFormController.new,
+  name: r'allowanceFormControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$allowanceFormControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$AllowanceFormController = AutoDisposeNotifier<AllowanceFormState>;
 String _$allowancePendingControllerHash() =>
     r'c9eaa0131efd240114e3f0937e025c0391bacef0';
 
