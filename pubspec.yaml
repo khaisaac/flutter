@@ -1,0 +1,60 @@
+name: reimbursement
+description: "Reimbursement Hexa – B2B Internal Financial Approval System."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── State Management ────────────────────────────────────────────────────────
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # ── Firebase ────────────────────────────────────────────────────────────────
+  # Versions capped for Dart 3.3.0 compatibility.
+  # After upgrading Flutter to >=3.22 (Dart >=3.4), bump to:
+  #   firebase_core: ^3.6.0 | firebase_auth: ^5.3.1
+  #   cloud_firestore: ^5.4.4 | firebase_storage: ^12.3.4
+  firebase_core: '>=3.0.0 <3.5.0'
+  firebase_auth: '>=5.0.0 <5.3.0'
+  cloud_firestore: '>=5.0.0 <5.3.0'
+  firebase_storage: '>=12.0.0 <12.2.0'
+  # firebase_messaging added in Step: Push Notifications (requires Dart >=3.4.0 / Flutter >=3.22)
+
+  # ── Navigation ───────────────────────────────────────────────────────────────
+  go_router: ^14.6.1
+
+  # ── Data / Serialization ─────────────────────────────────────────────────────
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.9.0
+
+  # ── Functional Programming (Either / Option) ─────────────────────────────────
+  dartz: ^0.10.1
+
+  # ── Utilities ────────────────────────────────────────────────────────────────
+  equatable: ^2.0.5
+  logger: ^2.4.0
+  intl: ^0.19.0
+  flutter_secure_storage: ^9.2.2
+  connectivity_plus: ^6.1.0
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # ── Code Generation ───────────────────────────────────────────────────────────
+  build_runner: ^2.4.9
+  freezed: ^2.4.7
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.3.9
+
+  # ── Linting ───────────────────────────────────────────────────────────────────
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

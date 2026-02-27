@@ -1,0 +1,2 @@
+// Shared widgets — populated in subsequent steps.
+// e.g. AppButton, AppTextField, LoadingOverlay, ErrorView.
