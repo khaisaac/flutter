@@ -8,6 +8,9 @@ import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
+import '../../features/cash_advance/presentation/pages/cash_advance_create_page.dart';
+import '../../features/cash_advance/presentation/pages/cash_advance_detail_page.dart';
+import '../../features/cash_advance/presentation/pages/cash_advance_list_page.dart';
 import 'app_routes.dart';
 
 part 'app_router.g.dart';
@@ -104,23 +107,22 @@ List<RouteBase> _buildRoutes() => [
         builder: (_, __) => const _DashboardPlaceholder(),
       ),
 
-      // ── Cash Advance (Step 4) ─────────────────────────────────────────────
+      // ── Cash Advance ──────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.cashAdvanceList,
         name: 'cash-advance-list',
-        builder: (_, __) => const _PlaceholderPage(title: 'Cash Advance'),
+        builder: (_, __) => const CashAdvanceListPage(),
         routes: [
           GoRoute(
             path: 'create',
             name: 'cash-advance-create',
-            builder: (_, __) =>
-                const _PlaceholderPage(title: 'New Cash Advance'),
+            builder: (_, __) => const CashAdvanceCreatePage(),
           ),
           GoRoute(
             path: ':id',
             name: 'cash-advance-detail',
-            builder: (_, state) => _PlaceholderPage(
-              title: 'Cash Advance #${state.pathParameters['id']}',
+            builder: (_, state) => CashAdvanceDetailPage(
+              id: state.pathParameters['id']!,
             ),
           ),
         ],

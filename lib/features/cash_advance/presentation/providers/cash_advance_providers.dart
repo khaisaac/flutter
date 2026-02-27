@@ -1,10 +1,15 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/constants/enums.dart';
 import '../../../../core/di/app_providers.dart';
+import '../../../../core/utils/typedefs.dart';
 import '../../data/datasources/cash_advance_remote_data_source.dart';
 import '../../data/repositories/cash_advance_repository_impl.dart';
 import '../../domain/entities/cash_advance_entity.dart';
 import '../../domain/repositories/cash_advance_repository.dart';
+import '../../domain/usecases/create_cash_advance_usecase.dart';
+import '../../domain/usecases/get_cash_advance_usecase.dart';
+import '../../domain/usecases/submit_cash_advance_usecase.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
 part 'cash_advance_providers.g.dart';
@@ -206,4 +211,182 @@ class CashAdvancePendingController extends _$CashAdvancePendingController {
   }
 
   Future<void> refresh() => loadFirstPage();
+}
+// ── Use Case Providers ────────────────────────────────────────────────────────
+
+@riverpod
+CreateCashAdvanceUseCase createCashAdvanceUseCase(
+  CreateCashAdvanceUseCaseRef ref,
+) =>
+    CreateCashAdvanceUseCase(ref.watch(cashAdvanceRepositoryProvider));
+
+@riverpod
+SubmitCashAdvanceUseCase submitCashAdvanceUseCase(
+  SubmitCashAdvanceUseCaseRef ref,
+) =>
+    SubmitCashAdvanceUseCase(ref.watch(cashAdvanceRepositoryProvider));
+
+@riverpod
+GetCashAdvanceUseCase getCashAdvanceUseCase(
+  GetCashAdvanceUseCaseRef ref,
+) =>
+    GetCashAdvanceUseCase(ref.watch(cashAdvanceRepositoryProvider));
+
+// ── Form State + Controller ───────────────────────────────────────────────────
+
+/// Immutable state for the Cash Advance create/edit form.
+class CashAdvanceFormState {
+  const CashAdvanceFormState({
+    this.isSaving = false,
+    this.isSubmitting = false,
+    this.errorMessage,
+    this.savedEntity,
+    this.isDone = false,
+  });
+
+  final bool isSaving;
+  final bool isSubmitting;
+  final String? errorMessage;
+
+  /// Set after a successful draft save or submission.
+  final CashAdvanceEntity? savedEntity;
+
+  /// True after a successful submission — triggers navigation upstream.
+  final bool isDone;
+
+  bool get isLoading => isSaving || isSubmitting;
+
+  CashAdvanceFormState copyWith({
+    bool? isSaving,
+    bool? isSubmitting,
+    String? errorMessage,
+    CashAdvanceEntity? savedEntity,
+    bool? isDone,
+    bool clearError = false,
+  }) =>
+      CashAdvanceFormState(
+        isSaving: isSaving ?? this.isSaving,
+        isSubmitting: isSubmitting ?? this.isSubmitting,
+        errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+        savedEntity: savedEntity ?? this.savedEntity,
+        isDone: isDone ?? this.isDone,
+      );
+}
+
+/// Manages state and business actions for the Cash Advance create form.
+///
+/// - [saveDraft] persists as draft (creates if new; updates if previously saved).
+/// - [submit] validates outstanding, then upserts with [pendingPic] status.
+/// - [reset] clears state (call on page dispose or post-navigation).
+@riverpod
+class CashAdvanceFormController extends _$CashAdvanceFormController {
+  @override
+  CashAdvanceFormState build() => const CashAdvanceFormState();
+
+  Future<void> saveDraft({
+    required String projectName,
+    required String projectId,
+    required String purpose,
+    required String description,
+    required double amount,
+    required String currency,
+    required String userUid,
+    required String userName,
+  }) async {
+    state = state.copyWith(isSaving: true, clearError: true);
+
+    final FutureEither<CashAdvanceEntity> action;
+    final existing = state.savedEntity;
+
+    if (existing != null) {
+      // Update the already-persisted draft with the latest field values.
+      action = ref.read(cashAdvanceRepositoryProvider).update(
+            existing.copyWith(
+              projectId: projectId,
+              projectName: projectName,
+              purpose: purpose,
+              description: description,
+              requestedAmount: amount,
+              currency: currency,
+              updatedAt: DateTime.now(),
+            ),
+          );
+    } else {
+      action = ref.read(createCashAdvanceUseCaseProvider).call(
+            CreateCashAdvanceParams(
+              submittedByUid: userUid,
+              submittedByName: userName,
+              projectId: projectId,
+              projectName: projectName,
+              requestedAmount: amount,
+              currency: currency,
+              purpose: purpose,
+              description: description,
+            ),
+          );
+    }
+
+    final result = await action;
+    state = result.fold(
+      (f) => state.copyWith(isSaving: false, errorMessage: f.message),
+      (entity) => state.copyWith(isSaving: false, savedEntity: entity),
+    );
+  }
+
+  Future<void> submit({
+    required String projectName,
+    required String projectId,
+    required String purpose,
+    required String description,
+    required double amount,
+    required String currency,
+    required String userUid,
+    required String userName,
+  }) async {
+    state = state.copyWith(isSubmitting: true, clearError: true);
+
+    final existing = state.savedEntity;
+    final CashAdvanceEntity entityToSubmit;
+
+    if (existing != null) {
+      entityToSubmit = existing.copyWith(
+        projectId: projectId,
+        projectName: projectName,
+        purpose: purpose,
+        description: description,
+        requestedAmount: amount,
+        currency: currency,
+        updatedAt: DateTime.now(),
+      );
+    } else {
+      entityToSubmit = CashAdvanceEntity(
+        id: '',
+        submittedByUid: userUid,
+        submittedByName: userName,
+        projectId: projectId,
+        projectName: projectName,
+        requestedAmount: amount,
+        currency: currency,
+        purpose: purpose,
+        description: description,
+        status: SubmissionStatus.draft,
+        createdAt: DateTime.now(),
+      );
+    }
+
+    final result = await ref.read(submitCashAdvanceUseCaseProvider).call(
+          SubmitCashAdvanceParams(
+            entity: entityToSubmit,
+            submitterUid: userUid,
+          ),
+        );
+
+    state = result.fold(
+      (f) => state.copyWith(isSubmitting: false, errorMessage: f.message),
+      (entity) =>
+          state.copyWith(isSubmitting: false, savedEntity: entity, isDone: true),
+    );
+  }
+
+  void reset() => state = const CashAdvanceFormState();
 }

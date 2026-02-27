@@ -227,6 +227,60 @@ class _CashAdvanceDetailStreamProviderElement
   String get id => (origin as CashAdvanceDetailStreamProvider).id;
 }
 
+String _$createCashAdvanceUseCaseHash() =>
+    r'bf5951288006dd8aaf8f1000482b4ca31b8eda7b';
+
+/// See also [createCashAdvanceUseCase].
+@ProviderFor(createCashAdvanceUseCase)
+final createCashAdvanceUseCaseProvider =
+    AutoDisposeProvider<CreateCashAdvanceUseCase>.internal(
+  createCashAdvanceUseCase,
+  name: r'createCashAdvanceUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$createCashAdvanceUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef CreateCashAdvanceUseCaseRef
+    = AutoDisposeProviderRef<CreateCashAdvanceUseCase>;
+String _$submitCashAdvanceUseCaseHash() =>
+    r'614944198304165ea97999ee50269cd7d97c0dbc';
+
+/// See also [submitCashAdvanceUseCase].
+@ProviderFor(submitCashAdvanceUseCase)
+final submitCashAdvanceUseCaseProvider =
+    AutoDisposeProvider<SubmitCashAdvanceUseCase>.internal(
+  submitCashAdvanceUseCase,
+  name: r'submitCashAdvanceUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$submitCashAdvanceUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef SubmitCashAdvanceUseCaseRef
+    = AutoDisposeProviderRef<SubmitCashAdvanceUseCase>;
+String _$getCashAdvanceUseCaseHash() =>
+    r'4f7278fccc48575671ea9cc54f56b65579db0b17';
+
+/// See also [getCashAdvanceUseCase].
+@ProviderFor(getCashAdvanceUseCase)
+final getCashAdvanceUseCaseProvider =
+    AutoDisposeProvider<GetCashAdvanceUseCase>.internal(
+  getCashAdvanceUseCase,
+  name: r'getCashAdvanceUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getCashAdvanceUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef GetCashAdvanceUseCaseRef
+    = AutoDisposeProviderRef<GetCashAdvanceUseCase>;
 String _$cashAdvanceListControllerHash() =>
     r'180ab17f1131399cacc0e32babeb79ebcaa0a35e';
 
@@ -264,5 +318,28 @@ final cashAdvancePendingControllerProvider = AutoDisposeNotifierProvider<
 
 typedef _$CashAdvancePendingController
     = AutoDisposeNotifier<PendingApprovalState>;
+String _$cashAdvanceFormControllerHash() =>
+    r'96924e9d0f0fb936d4fa55ccf36d5865aa5fb392';
+
+/// Manages state and business actions for the Cash Advance create form.
+///
+/// - [saveDraft] persists as draft (creates if new; updates if previously saved).
+/// - [submit] validates outstanding, then upserts with [pendingPic] status.
+/// - [reset] clears state (call on page dispose or post-navigation).
+///
+/// Copied from [CashAdvanceFormController].
+@ProviderFor(CashAdvanceFormController)
+final cashAdvanceFormControllerProvider = AutoDisposeNotifierProvider<
+    CashAdvanceFormController, CashAdvanceFormState>.internal(
+  CashAdvanceFormController.new,
+  name: r'cashAdvanceFormControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$cashAdvanceFormControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CashAdvanceFormController = AutoDisposeNotifier<CashAdvanceFormState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

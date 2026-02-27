@@ -139,4 +139,11 @@ class CashAdvanceRepositoryImpl extends BaseFirestoreRepository
       },
     );
   }
+
+  @override
+  FutureEither<bool> hasOutstanding(String userId) =>
+      guardedFetch(
+        () => _dataSource.hasOutstanding(userId),
+        context: 'CashAdvance.hasOutstanding',
+      );
 }

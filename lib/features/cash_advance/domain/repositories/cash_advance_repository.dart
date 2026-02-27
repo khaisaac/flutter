@@ -39,6 +39,11 @@ abstract class CashAdvanceRepository {
   /// Updates mutable fields of a draft or revision-status submission.
   FutureEither<CashAdvanceEntity> update(CashAdvanceEntity entity);
 
-  /// Deletes a draft submission (only allowed in draft state).
+  /// Deletes a draft submission permanently.
   FutureEither<void> delete(String id);
+
+  /// Returns [true] when the [userId] already has at least one submission
+  /// in an active (in-flight) state: pending_pic, pending_finance, or
+  /// approved-but-unpaid.  Used to block duplicate submissions.
+  FutureEither<bool> hasOutstanding(String userId);
 }

@@ -29,6 +29,9 @@ abstract class CashAdvanceRemoteDataSource {
   Future<CashAdvanceModel> update(CashAdvanceModel model);
 
   Future<void> delete(String id);
+
+  /// Returns [true] when the user has any active in-flight submission.
+  Future<bool> hasOutstanding(String userId);
 }
 
 // ── Implementation ─────────────────────────────────────────────────────────
@@ -150,5 +153,19 @@ class CashAdvanceRemoteDataSourceImpl
   @override
   Future<void> delete(String id) async {
     await _col.doc(id).delete();
+  }
+
+  @override
+  Future<bool> hasOutstanding(String userId) async {
+    final snap = await _col
+        .where('submittedByUid', isEqualTo: userId)
+        .where('status', whereIn: [
+          'pending_pic',
+          'pending_finance',
+          'approved',
+        ])
+        .limit(1)
+        .get();
+    return snap.docs.isNotEmpty;
   }
 }
