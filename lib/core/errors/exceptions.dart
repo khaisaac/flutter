@@ -92,3 +92,45 @@ class ValidationException extends AppException {
 class CacheException extends AppException {
   const CacheException({required super.message, super.code = 'cache-error'});
 }
+
+// ── Approval Engine ───────────────────────────────────────────────────────────
+
+/// Thrown inside ApprovalService when validation fails.
+/// Converted to an [ApprovalFailure] subclass before leaving the service.
+class ApprovalException extends AppException {
+  const ApprovalException({required super.message, super.code = 'approval-error'});
+}
+
+class InvalidApprovalStateException extends ApprovalException {
+  const InvalidApprovalStateException({required String status})
+      : super(
+          message: 'Cannot act on submission with status "$status".',
+          code: 'invalid-approval-state',
+        );
+}
+
+class UnauthorizedApprovalException extends ApprovalException {
+  const UnauthorizedApprovalException({
+    required String requiredRole,
+    required String actorRole,
+  }) : super(
+          message: 'Requires role "$requiredRole"; actor has "$actorRole".',
+          code: 'unauthorized-approval',
+        );
+}
+
+class DisallowedActionException extends ApprovalException {
+  const DisallowedActionException({required String action, required String step})
+      : super(
+          message: 'Action "$action" not allowed at step "$step".',
+          code: 'disallowed-action',
+        );
+}
+
+class StaleStatusException extends ApprovalException {
+  const StaleStatusException({required String expected, required String actual})
+      : super(
+          message: 'Status changed. Expected "$expected", found "$actual".',
+          code: 'stale-status',
+        );
+}

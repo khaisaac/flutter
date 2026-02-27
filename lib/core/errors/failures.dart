@@ -104,3 +104,50 @@ class UnknownFailure extends Failure {
     super.code = 'unknown',
   });
 }
+
+// ── Approval Engine Failures ──────────────────────────────────────────────────
+
+/// Base class for all approval-workflow failures.
+class ApprovalFailure extends Failure {
+  const ApprovalFailure({required super.message, super.code = 'approval-error'});
+}
+
+/// Thrown when the submission is not in a state that accepts any action.
+class InvalidApprovalStateFailure extends ApprovalFailure {
+  const InvalidApprovalStateFailure({required String status})
+      : super(
+          message: 'Cannot act on a submission with status "$status".',
+          code: 'invalid-approval-state',
+        );
+}
+
+/// Thrown when the actor's role does not match the step's required role.
+class UnauthorizedApprovalFailure extends ApprovalFailure {
+  const UnauthorizedApprovalFailure({required String requiredRole, required String actorRole})
+      : super(
+          message:
+              'Action requires role "$requiredRole", but actor has role "$actorRole".',
+          code: 'unauthorized-approval',
+        );
+}
+
+/// Thrown when the actor's requested action is not in the step's allowed list.
+class DisallowedActionFailure extends ApprovalFailure {
+  const DisallowedActionFailure({required String action, required String step})
+      : super(
+          message: 'Action "$action" is not allowed at step "$step".',
+          code: 'disallowed-action',
+        );
+}
+
+/// Thrown when the document status changed between the actor loading the UI
+/// and submitting the approval (concurrent modification guard).
+class StaleStatusFailure extends ApprovalFailure {
+  const StaleStatusFailure({required String expected, required String actual})
+      : super(
+          message:
+              'Submission status changed since you opened it. '
+              'Expected "$expected" but found "$actual".',
+          code: 'stale-status',
+        );
+}
