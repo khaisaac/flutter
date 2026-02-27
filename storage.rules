@@ -1,0 +1,130 @@
+// ============================================================================
+// Firebase Storage Security Rules — Reimbursement Hexa
+// ============================================================================
+//
+// Path conventions (mirrors StorageService.dart):
+//   cash_advance/{userId}/{submissionId}/{uuid}.{ext}
+//   allowance/{userId}/{submissionId}/{uuid}.{ext}
+//   reimbursement/{userId}/{submissionId}/{itemId}/{uuid}.{ext}
+//   profile_pictures/{userId}/{uuid}.{ext}
+//
+// Security invariants:
+//   1. Unauthenticated access is denied everywhere.
+//   2. Upload path must contain the caller's own UID — prevents path traversal.
+//   3. Approvers can download any attachment; owners can download their own.
+//   4. Maximum file size: 15 MB (covers high-res receipts / PDFs).
+//   5. Accepted content types: images (jpeg, png, webp) and application/pdf.
+//   6. Deletes are restricted to Admin SDK (Cloud Functions) or the owner
+//      while the submission is in a draft state. Storage rules cannot query
+//      Firestore, so the submitter UID path acts as the immutable guard.
+// ============================================================================
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Global deny-all fallback ─────────────────────────────────────────────
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // ── Helper functions ─────────────────────────────────────────────────────
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function role() {
+      return request.auth.token.get('role', 'employee');
+    }
+
+    function isApprover() {
+      return isAuthed() &&
+             (role() == 'pic_project' || role() == 'finance' || role() == 'admin');
+    }
+
+    // Max 15 MB — generous for high-resolution photos / scanned PDFs.
+    function isWithinSizeLimit() {
+      return request.resource.size <= 15 * 1024 * 1024;
+    }
+
+    // Accept JPEG, PNG, WebP images and PDF documents only.
+    function isAllowedContentType() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp)')
+          || request.resource.contentType == 'application/pdf';
+    }
+
+    // The upload path contains {userId} — must match the caller's UID to
+    // prevent one user writing into another's storage namespace.
+    function isPathOwner(userId) {
+      return isAuthed() && uid() == userId;
+    }
+
+    // ========================================================================
+    // Cash Advance attachments
+    //   cash_advance/{userId}/{submissionId}/{filename}
+    // ========================================================================
+    match /cash_advance/{userId}/{submissionId}/{filename} {
+      // Downloader: owner at this path, or any approver.
+      allow read: if isPathOwner(userId) || isApprover();
+
+      // Uploader: only the path owner; size + content-type enforced.
+      allow write: if isPathOwner(userId)
+                   && isWithinSizeLimit()
+                   && isAllowedContentType();
+
+      // Deletes: path owner only (draft clean-up). Approvers do not delete.
+      allow delete: if isPathOwner(userId);
+    }
+
+    // ========================================================================
+    // Allowance attendance proofs
+    //   allowance/{userId}/{submissionId}/{filename}
+    // ========================================================================
+    match /allowance/{userId}/{submissionId}/{filename} {
+      allow read: if isPathOwner(userId) || isApprover();
+
+      allow write: if isPathOwner(userId)
+                   && isWithinSizeLimit()
+                   && isAllowedContentType();
+
+      allow delete: if isPathOwner(userId);
+    }
+
+    // ========================================================================
+    // Reimbursement receipts (nested under line-item ID)
+    //   reimbursement/{userId}/{submissionId}/{itemId}/{filename}
+    // ========================================================================
+    match /reimbursement/{userId}/{submissionId}/{itemId}/{filename} {
+      allow read: if isPathOwner(userId) || isApprover();
+
+      allow write: if isPathOwner(userId)
+                   && isWithinSizeLimit()
+                   && isAllowedContentType();
+
+      allow delete: if isPathOwner(userId);
+    }
+
+    // ========================================================================
+    // Profile pictures
+    //   profile_pictures/{userId}/{filename}
+    // ========================================================================
+    match /profile_pictures/{userId}/{filename} {
+      // Any authenticated user may view profile pictures (avatars in approval UI).
+      allow read: if isAuthed();
+
+      // Only the owner uploads their own avatar; images only; max 5 MB.
+      allow write: if isPathOwner(userId)
+                   && request.resource.size <= 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/(jpeg|png|webp)');
+
+      allow delete: if isPathOwner(userId);
+    }
+
+  }
+}

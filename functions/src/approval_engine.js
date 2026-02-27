@@ -33,7 +33,11 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-admin.initializeApp();
+// admin is initialised by index.js; guard prevents double-init if this
+// module is ever required standalone (e.g. unit tests).
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 const db = admin.firestore();
 const messaging = admin.messaging();

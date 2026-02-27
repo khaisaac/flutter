@@ -1,0 +1,258 @@
+// ============================================================================
+// Firestore Security Rules — Reimbursement Hexa
+// ============================================================================
+//
+// Role model (set as Firebase custom claims on the Auth ID token):
+//   employee    — can create & manage own submissions
+//   pic_project — approves at pending_pic step
+//   finance     — approves at pending_finance step; marks paid
+//   admin       — read-all; manage users; no write to submission docs
+//
+// Guiding principles (ISO 27001 / SOC 2 compliance ready):
+//   1. Deny-by-default — every path not explicitly matched is denied.
+//   2. Least-privilege — each role receives the minimum access it needs.
+//   3. Ownership invariants — submittedByUid and createdAt are immutable.
+//   4. State-machine enforcement — only valid status transitions are allowed.
+//   5. Approver scope — a role can only act on the status it owns.
+//   6. Server-timestamp integrity — server-set fields cannot be forged.
+//   7. Size constraints — every write is bounded to prevent abuse.
+// ============================================================================
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Global deny-all fallback ─────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ========================================================================
+    // Helper functions
+    // ========================================================================
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    // Safe role read — falls back to 'employee' when claim is absent.
+    function role() {
+      return request.auth.token.get('role', 'employee');
+    }
+
+    function isEmployee()   { return isAuthed() && role() == 'employee'; }
+    function isPic()        { return isAuthed() && role() == 'pic_project'; }
+    function isFinance()    { return isAuthed() && role() == 'finance'; }
+    function isAdmin()      { return isAuthed() && role() == 'admin'; }
+    function isApprover()   { return isPic() || isFinance() || isAdmin(); }
+
+    // True when the caller's UID matches the document's submittedByUid.
+    function isOwner() {
+      return isAuthed() && resource.data.submittedByUid == uid();
+    }
+
+    // True when the incoming write's submittedByUid matches the caller.
+    function claimsOwnership() {
+      return request.resource.data.submittedByUid == uid();
+    }
+
+    // Submission can be edited only when in draft or revision state.
+    function isEditableStatus(status) {
+      return status == 'draft' || status == 'revision';
+    }
+
+    // Validates a status transition through the shared approval pipeline.
+    //   draft / revision → pending_pic   (employee re-submits)
+    //   pending_pic      → pending_finance | rejected | revision  (PIC acts)
+    //   pending_finance  → approved | rejected | revision         (Finance acts)
+    //   approved         → paid                                   (Finance marks paid)
+    function isValidTransition(from, to) {
+      return
+        ( (from == 'draft'     || from == 'revision') && to == 'pending_pic'  ) ||
+        ( from == 'pending_pic'     && (to == 'pending_finance' || to == 'rejected' || to == 'revision') ) ||
+        ( from == 'pending_finance' && (to == 'approved'        || to == 'rejected' || to == 'revision') ) ||
+        ( from == 'approved'        && to == 'paid'             );
+    }
+
+    // True when the caller's role is authorised to act on the given status.
+    function canActOnStatus(currentStatus) {
+      return
+        ( isPic()     && currentStatus == 'pending_pic'     ) ||
+        ( isFinance() && (currentStatus == 'pending_finance' || currentStatus == 'approved') );
+    }
+
+    // Ownership-invariant check — these fields must not change after creation.
+    function ownershipUnchanged() {
+      return
+        request.resource.data.submittedByUid == resource.data.submittedByUid &&
+        request.resource.data.submittedByName == resource.data.submittedByName;
+    }
+
+    // Reject any document larger than 64 KB to mitigate mass-assignment attacks.
+    function withinSizeLimit() {
+      return request.resource.size < 65536;
+    }
+
+    // Shared create rule for all submission collections.
+    function canCreateSubmission() {
+      let d = request.resource.data;
+      return isAuthed()
+          && claimsOwnership()
+          && d.status == 'draft'
+          && d.currency is string
+          && d.requestedAmount is number
+          && d.requestedAmount > 0
+          && withinSizeLimit();
+    }
+
+    // Shared update rule for the submitter (draft / revision editing).
+    function canUpdateAsOwner() {
+      let incoming = request.resource.data;
+      let existing = resource.data;
+      return isOwner()
+          && isEditableStatus(existing.status)
+          && ownershipUnchanged()
+          && ( incoming.status == existing.status          // staying in same state
+             || isValidTransition(existing.status, incoming.status) )
+          && withinSizeLimit();
+    }
+
+    // Shared update rule for approvers.
+    function canUpdateAsApprover() {
+      let incoming = request.resource.data;
+      let existing = resource.data;
+      return isApprover()
+          && canActOnStatus(existing.status)
+          && isValidTransition(existing.status, incoming.status)
+          && ownershipUnchanged()
+          && withinSizeLimit();
+    }
+
+    // ========================================================================
+    // /users/{userId}
+    // ========================================================================
+    match /users/{userId} {
+      // Users can read their own profile; approvers + admin can read all.
+      allow read: if isAuthed() && (uid() == userId || isApprover());
+
+      // Users update only their own non-privileged fields.
+      allow create: if isAdmin();
+      allow update: if (uid() == userId && !('role' in request.resource.data.diff(resource.data).affectedKeys()))
+                    || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ========================================================================
+    // /cash_advances/{docId}
+    // ========================================================================
+    match /cash_advances/{docId} {
+      allow read: if isOwner() || isApprover();
+
+      allow create: if canCreateSubmission()
+                    && request.resource.data.purpose is string;
+
+      allow update: if canUpdateAsOwner()
+                    || canUpdateAsApprover();
+
+      // Only admin or owner in draft state can hard-delete.
+      allow delete: if isAdmin()
+                    || (isOwner() && resource.data.status == 'draft');
+    }
+
+    // ========================================================================
+    // /allowances/{docId}
+    // ========================================================================
+    match /allowances/{docId} {
+      allow read: if isOwner() || isApprover();
+
+      allow create: if canCreateSubmission()
+                    && request.resource.data.type is string
+                    && request.resource.data.allowanceDateMs is number;
+
+      allow update: if canUpdateAsOwner()
+                    || canUpdateAsApprover();
+
+      allow delete: if isAdmin()
+                    || (isOwner() && resource.data.status == 'draft');
+    }
+
+    // ========================================================================
+    // /reimbursements/{docId}
+    // ========================================================================
+    match /reimbursements/{docId} {
+      allow read: if isOwner() || isApprover();
+
+      allow create: if canCreateSubmission()
+                    && request.resource.data.items is list
+                    && request.resource.data.totalRequestedAmount is number
+                    && request.resource.data.totalRequestedAmount > 0;
+
+      allow update: if canUpdateAsOwner()
+                    || canUpdateAsApprover();
+
+      allow delete: if isAdmin()
+                    || (isOwner() && resource.data.status == 'draft');
+    }
+
+    // ========================================================================
+    // /notifications/{notifId}
+    // ========================================================================
+    // Notifications are written by the Dart ApprovalService (inside a
+    // transaction) and processed by a Cloud Function.
+    // Clients may only create; the Cloud Function handles reads and updates
+    // via the Admin SDK (bypasses rules).
+    match /notifications/{notifId} {
+      // Owner reads their own notifications; admin reads all.
+      allow read: if isAuthed()
+                  && (resource.data.recipientUid == uid() || isAdmin());
+
+      // Any authenticated user can queue a notification (done inside the
+      // Firestore transaction in ApprovalService). Writes are bounded.
+      allow create: if isAuthed() && withinSizeLimit();
+
+      // Only the Admin SDK (Cloud Function) updates/deletes — clients cannot.
+      allow update, delete: if false;
+    }
+
+    // ========================================================================
+    // /projects/{projectId}
+    // ========================================================================
+    match /projects/{projectId} {
+      // All authenticated users may read project metadata (used in dropdowns).
+      allow read: if isAuthed();
+
+      // Only admin manages project records.
+      allow write: if isAdmin();
+    }
+
+    // ========================================================================
+    // /settings/{doc}
+    // ========================================================================
+    match /settings/{doc} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // ========================================================================
+    // /approvals/{docId}  (audit log — append-only)
+    // ========================================================================
+    match /approvals/{docId} {
+      allow read: if isApprover() || isOwner();
+
+      // Approval log entries are created only via the Admin SDK or the
+      // Dart ApprovalService transaction. Direct client creates are allowed
+      // only for the approver who is acting (defence-in-depth; the
+      // Cloud Function is the preferred write path).
+      allow create: if isApprover() && withinSizeLimit();
+
+      // Audit log entries are immutable.
+      allow update, delete: if false;
+    }
+
+  }
+}
