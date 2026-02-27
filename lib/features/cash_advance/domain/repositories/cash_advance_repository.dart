@@ -46,4 +46,8 @@ abstract class CashAdvanceRepository {
   /// in an active (in-flight) state: pending_pic, pending_finance, or
   /// approved-but-unpaid.  Used to block duplicate submissions.
   FutureEither<bool> hasOutstanding(String userId);
+
+  /// Returns approved / paid cash advances for [userId] that have not yet
+  /// been fully settled.  Used for the reimbursement linked-CA dropdown.
+  FutureEither<List<CashAdvanceEntity>> getApprovedCashAdvances(String userId);
 }

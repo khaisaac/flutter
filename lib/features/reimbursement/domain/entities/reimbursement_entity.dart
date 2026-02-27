@@ -64,7 +64,12 @@ class ReimbursementEntity extends Equatable {
 
   // ── Purpose ───────────────────────────────────────────────────────────────
   final String description;
-
+  // ── Cash Advance Link (optional) ──────────────────────────────────────
+  /// Links this reimbursement to a specific Cash Advance for settlement.
+  /// When not null, submitting this reimbursement decrements the CA's
+  /// [outstandingAmount] inside a single Firestore transaction.
+  final String? linkedCashAdvanceId;
+  final String? linkedCashAdvancePurpose; // display label in the UI
   // ── Status ────────────────────────────────────────────────────────────────
   final SubmissionStatus status;
 
@@ -99,6 +104,8 @@ class ReimbursementEntity extends Equatable {
     this.totalApprovedAmount,
     this.currency = 'IDR',
     this.description = '',
+    this.linkedCashAdvanceId,
+    this.linkedCashAdvancePurpose,
     this.status = SubmissionStatus.draft,
     this.picUid,
     this.financeUid,
@@ -149,6 +156,8 @@ class ReimbursementEntity extends Equatable {
     DateTime? updatedAt,
     List<AttachmentEntity>? attachments,
     List<ApprovalHistoryEntity>? history,
+    Object? linkedCashAdvanceId = _sentinel,
+    Object? linkedCashAdvancePurpose = _sentinel,
   }) {
     return ReimbursementEntity(
       id: id ?? this.id,
@@ -161,6 +170,12 @@ class ReimbursementEntity extends Equatable {
       totalApprovedAmount: totalApprovedAmount ?? this.totalApprovedAmount,
       currency: currency ?? this.currency,
       description: description ?? this.description,
+      linkedCashAdvanceId: linkedCashAdvanceId == _sentinel
+          ? this.linkedCashAdvanceId
+          : linkedCashAdvanceId as String?,
+      linkedCashAdvancePurpose: linkedCashAdvancePurpose == _sentinel
+          ? this.linkedCashAdvancePurpose
+          : linkedCashAdvancePurpose as String?,
       status: status ?? this.status,
       picUid: picUid ?? this.picUid,
       financeUid: financeUid ?? this.financeUid,
@@ -178,6 +193,8 @@ class ReimbursementEntity extends Equatable {
       history: history ?? this.history,
     );
   }
+
+  static const Object _sentinel = Object();
 
   @override
   List<Object?> get props =>

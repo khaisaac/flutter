@@ -32,6 +32,10 @@ abstract class CashAdvanceRemoteDataSource {
 
   /// Returns [true] when the user has any active in-flight submission.
   Future<bool> hasOutstanding(String userId);
+
+  /// Returns approved or paid CAs for [userId] that are not fully settled.
+  /// Used to populate the reimbursement "linked CA" dropdown.
+  Future<List<CashAdvanceModel>> getApprovedCashAdvances(String userId);
 }
 
 // ── Implementation ─────────────────────────────────────────────────────────
@@ -167,5 +171,20 @@ class CashAdvanceRemoteDataSourceImpl
         .limit(1)
         .get();
     return snap.docs.isNotEmpty;
+  }
+
+  @override
+  Future<List<CashAdvanceModel>> getApprovedCashAdvances(String userId) async {
+    final snap = await _col
+        .where('submittedByUid', isEqualTo: userId)
+        .where('status', whereIn: ['approved', 'paid'])
+        .orderBy('approvedByFinanceAt', descending: true)
+        .limit(50)
+        .get();
+    // Client-side filter: exclude fully-settled advances.
+    return snap.docs
+        .map((d) => CashAdvanceModel.fromFirestore(d.data(), d.id))
+        .where((m) => !m.isFullySettled)
+        .toList();
   }
 }

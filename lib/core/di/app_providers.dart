@@ -4,6 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../storage/storage_service.dart';
+
 part 'app_providers.g.dart';
 
 // ── Firebase Service Providers ─────────────────────────────────────────────
@@ -33,3 +35,9 @@ FlutterSecureStorage secureStorage(SecureStorageRef ref) =>
         accessibility: KeychainAccessibility.first_unlock,
       ),
     );
+
+// ── Storage Service ────────────────────────────────────────────────────────
+
+@Riverpod(keepAlive: true)
+StorageService storageService(StorageServiceRef ref) =>
+    StorageService(ref.watch(firebaseStorageProvider));

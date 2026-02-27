@@ -45,6 +45,8 @@ mixin _$CashAdvanceModel {
   int? get updatedAtMs => throw _privateConstructorUsedError;
   List<AttachmentModel> get attachments => throw _privateConstructorUsedError;
   List<ApprovalHistoryModel> get history => throw _privateConstructorUsedError;
+  double? get outstandingAmount => throw _privateConstructorUsedError;
+  bool get isFullySettled => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -83,7 +85,9 @@ abstract class $CashAdvanceModelCopyWith<$Res> {
       int? paidAtMs,
       int? updatedAtMs,
       List<AttachmentModel> attachments,
-      List<ApprovalHistoryModel> history});
+      List<ApprovalHistoryModel> history,
+      double? outstandingAmount,
+      bool isFullySettled});
 }
 
 /// @nodoc
@@ -124,6 +128,8 @@ class _$CashAdvanceModelCopyWithImpl<$Res, $Val extends CashAdvanceModel>
     Object? updatedAtMs = freezed,
     Object? attachments = null,
     Object? history = null,
+    Object? outstandingAmount = freezed,
+    Object? isFullySettled = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -226,6 +232,14 @@ class _$CashAdvanceModelCopyWithImpl<$Res, $Val extends CashAdvanceModel>
           ? _value.history
           : history // ignore: cast_nullable_to_non_nullable
               as List<ApprovalHistoryModel>,
+      outstandingAmount: freezed == outstandingAmount
+          ? _value.outstandingAmount
+          : outstandingAmount // ignore: cast_nullable_to_non_nullable
+              as double?,
+      isFullySettled: null == isFullySettled
+          ? _value.isFullySettled
+          : isFullySettled // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -263,7 +277,9 @@ abstract class _$$CashAdvanceModelImplCopyWith<$Res>
       int? paidAtMs,
       int? updatedAtMs,
       List<AttachmentModel> attachments,
-      List<ApprovalHistoryModel> history});
+      List<ApprovalHistoryModel> history,
+      double? outstandingAmount,
+      bool isFullySettled});
 }
 
 /// @nodoc
@@ -302,6 +318,8 @@ class __$$CashAdvanceModelImplCopyWithImpl<$Res>
     Object? updatedAtMs = freezed,
     Object? attachments = null,
     Object? history = null,
+    Object? outstandingAmount = freezed,
+    Object? isFullySettled = null,
   }) {
     return _then(_$CashAdvanceModelImpl(
       id: null == id
@@ -404,6 +422,14 @@ class __$$CashAdvanceModelImplCopyWithImpl<$Res>
           ? _value._history
           : history // ignore: cast_nullable_to_non_nullable
               as List<ApprovalHistoryModel>,
+      outstandingAmount: freezed == outstandingAmount
+          ? _value.outstandingAmount
+          : outstandingAmount // ignore: cast_nullable_to_non_nullable
+              as double?,
+      isFullySettled: null == isFullySettled
+          ? _value.isFullySettled
+          : isFullySettled // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -436,7 +462,9 @@ class _$CashAdvanceModelImpl extends _CashAdvanceModel {
       this.paidAtMs,
       this.updatedAtMs,
       final List<AttachmentModel> attachments = const [],
-      final List<ApprovalHistoryModel> history = const []})
+      final List<ApprovalHistoryModel> history = const [],
+      this.outstandingAmount,
+      this.isFullySettled = false})
       : _attachments = attachments,
         _history = history,
         super._();
@@ -512,8 +540,14 @@ class _$CashAdvanceModelImpl extends _CashAdvanceModel {
   }
 
   @override
+  final double? outstandingAmount;
+  @override
+  @JsonKey()
+  final bool isFullySettled;
+
+  @override
   String toString() {
-    return 'CashAdvanceModel(id: $id, submittedByUid: $submittedByUid, submittedByName: $submittedByName, projectId: $projectId, projectName: $projectName, requestedAmount: $requestedAmount, approvedAmount: $approvedAmount, currency: $currency, purpose: $purpose, description: $description, status: $status, picUid: $picUid, financeUid: $financeUid, picNote: $picNote, financeNote: $financeNote, rejectionReason: $rejectionReason, createdAtMs: $createdAtMs, submittedAtMs: $submittedAtMs, approvedByPicAtMs: $approvedByPicAtMs, approvedByFinanceAtMs: $approvedByFinanceAtMs, rejectedAtMs: $rejectedAtMs, paidAtMs: $paidAtMs, updatedAtMs: $updatedAtMs, attachments: $attachments, history: $history)';
+    return 'CashAdvanceModel(id: $id, submittedByUid: $submittedByUid, submittedByName: $submittedByName, projectId: $projectId, projectName: $projectName, requestedAmount: $requestedAmount, approvedAmount: $approvedAmount, currency: $currency, purpose: $purpose, description: $description, status: $status, picUid: $picUid, financeUid: $financeUid, picNote: $picNote, financeNote: $financeNote, rejectionReason: $rejectionReason, createdAtMs: $createdAtMs, submittedAtMs: $submittedAtMs, approvedByPicAtMs: $approvedByPicAtMs, approvedByFinanceAtMs: $approvedByFinanceAtMs, rejectedAtMs: $rejectedAtMs, paidAtMs: $paidAtMs, updatedAtMs: $updatedAtMs, attachments: $attachments, history: $history, outstandingAmount: $outstandingAmount, isFullySettled: $isFullySettled)';
   }
 
   @override
@@ -564,7 +598,11 @@ class _$CashAdvanceModelImpl extends _CashAdvanceModel {
                 other.updatedAtMs == updatedAtMs) &&
             const DeepCollectionEquality()
                 .equals(other._attachments, _attachments) &&
-            const DeepCollectionEquality().equals(other._history, _history));
+            const DeepCollectionEquality().equals(other._history, _history) &&
+            (identical(other.outstandingAmount, outstandingAmount) ||
+                other.outstandingAmount == outstandingAmount) &&
+            (identical(other.isFullySettled, isFullySettled) ||
+                other.isFullySettled == isFullySettled));
   }
 
   @JsonKey(ignore: true)
@@ -595,7 +633,9 @@ class _$CashAdvanceModelImpl extends _CashAdvanceModel {
         paidAtMs,
         updatedAtMs,
         const DeepCollectionEquality().hash(_attachments),
-        const DeepCollectionEquality().hash(_history)
+        const DeepCollectionEquality().hash(_history),
+        outstandingAmount,
+        isFullySettled
       ]);
 
   @JsonKey(ignore: true)
@@ -639,7 +679,9 @@ abstract class _CashAdvanceModel extends CashAdvanceModel {
       final int? paidAtMs,
       final int? updatedAtMs,
       final List<AttachmentModel> attachments,
-      final List<ApprovalHistoryModel> history}) = _$CashAdvanceModelImpl;
+      final List<ApprovalHistoryModel> history,
+      final double? outstandingAmount,
+      final bool isFullySettled}) = _$CashAdvanceModelImpl;
   const _CashAdvanceModel._() : super._();
 
   factory _CashAdvanceModel.fromJson(Map<String, dynamic> json) =
@@ -695,6 +737,10 @@ abstract class _CashAdvanceModel extends CashAdvanceModel {
   List<AttachmentModel> get attachments;
   @override
   List<ApprovalHistoryModel> get history;
+  @override
+  double? get outstandingAmount;
+  @override
+  bool get isFullySettled;
   @override
   @JsonKey(ignore: true)
   _$$CashAdvanceModelImplCopyWith<_$CashAdvanceModelImpl> get copyWith =>

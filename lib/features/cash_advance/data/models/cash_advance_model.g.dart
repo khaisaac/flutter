@@ -41,6 +41,8 @@ _$CashAdvanceModelImpl _$$CashAdvanceModelImplFromJson(
                   ApprovalHistoryModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      outstandingAmount: (json['outstandingAmount'] as num?)?.toDouble(),
+      isFullySettled: json['isFullySettled'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$CashAdvanceModelImplToJson(
@@ -71,4 +73,6 @@ Map<String, dynamic> _$$CashAdvanceModelImplToJson(
       'updatedAtMs': instance.updatedAtMs,
       'attachments': instance.attachments,
       'history': instance.history,
+      'outstandingAmount': instance.outstandingAmount,
+      'isFullySettled': instance.isFullySettled,
     };

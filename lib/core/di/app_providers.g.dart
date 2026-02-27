@@ -64,5 +64,20 @@ final secureStorageProvider = Provider<FlutterSecureStorage>.internal(
 );
 
 typedef SecureStorageRef = ProviderRef<FlutterSecureStorage>;
+String _$storageServiceHash() => r'd2a2d324e75d0ede6a72205a32dc72dd95216715';
+
+/// See also [storageService].
+@ProviderFor(storageService)
+final storageServiceProvider = Provider<StorageService>.internal(
+  storageService,
+  name: r'storageServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$storageServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef StorageServiceRef = ProviderRef<StorageService>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

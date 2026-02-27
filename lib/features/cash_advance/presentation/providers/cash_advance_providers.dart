@@ -45,6 +45,20 @@ Stream<List<CashAdvanceEntity>> userCashAdvanceStream(
       .map((either) => either.getOrElse(() => []));
 }
 
+/// One-shot fetch of approved/paid CAs that are not fully settled.
+/// Used to populate the "Linked Cash Advance" dropdown on the
+/// Reimbursement create form.
+@riverpod
+Future<List<CashAdvanceEntity>> approvedCashAdvances(
+    ApprovedCashAdvancesRef ref) async {
+  final user = ref.watch(authStateStreamProvider).valueOrNull;
+  if (user == null) return [];
+  final result = await ref
+      .watch(cashAdvanceRepositoryProvider)
+      .getApprovedCashAdvances(user.uid);
+  return result.getOrElse(() => []);
+}
+
 // ── Paginated List State ──────────────────────────────────────────────────────
 
 class CashAdvanceListState {

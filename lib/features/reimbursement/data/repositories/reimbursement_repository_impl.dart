@@ -112,4 +112,20 @@ class ReimbursementRepositoryImpl extends BaseFirestoreRepository
         () => _dataSource.delete(id),
         context: 'reimbursement.delete',
       );
+
+  @override
+  FutureEither<ReimbursementEntity> submitWithSettlement({
+    required ReimbursementEntity entity,
+    String? linkedCaId,
+  }) =>
+      guardedFetch(
+        () async {
+          final saved = await _dataSource.submitWithSettlement(
+            model: ReimbursementModel.fromEntity(entity),
+            linkedCaId: linkedCaId,
+          );
+          return saved.toEntity();
+        },
+        context: 'reimbursement.submitWithSettlement',
+      );
 }

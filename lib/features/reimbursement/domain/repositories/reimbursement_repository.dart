@@ -26,4 +26,11 @@ abstract class ReimbursementRepository {
   FutureEither<ReimbursementEntity> update(ReimbursementEntity entity);
 
   FutureEither<void> delete(String id);
+
+  /// Submits a reimbursement and atomically updates the linked Cash Advance's
+  /// outstanding balance inside a single Firestore transaction.
+  FutureEither<ReimbursementEntity> submitWithSettlement({
+    required ReimbursementEntity entity,
+    String? linkedCaId,
+  });
 }

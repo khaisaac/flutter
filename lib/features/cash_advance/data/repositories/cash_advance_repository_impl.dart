@@ -146,4 +146,16 @@ class CashAdvanceRepositoryImpl extends BaseFirestoreRepository
         () => _dataSource.hasOutstanding(userId),
         context: 'CashAdvance.hasOutstanding',
       );
+
+  @override
+  FutureEither<List<CashAdvanceEntity>> getApprovedCashAdvances(
+      String userId) =>
+      guardedFetch(
+        () async {
+          final models =
+              await _dataSource.getApprovedCashAdvances(userId);
+          return models.map((m) => m.toEntity()).toList();
+        },
+        context: 'CashAdvance.getApprovedCashAdvances',
+      );
 }

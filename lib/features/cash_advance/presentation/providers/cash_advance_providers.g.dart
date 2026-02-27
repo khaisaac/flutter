@@ -60,6 +60,28 @@ final userCashAdvanceStreamProvider =
 
 typedef UserCashAdvanceStreamRef
     = AutoDisposeStreamProviderRef<List<CashAdvanceEntity>>;
+String _$approvedCashAdvancesHash() =>
+    r'77324a809e97c9d114462585cfa87f028b024009';
+
+/// One-shot fetch of approved/paid CAs that are not fully settled.
+/// Used to populate the "Linked Cash Advance" dropdown on the
+/// Reimbursement create form.
+///
+/// Copied from [approvedCashAdvances].
+@ProviderFor(approvedCashAdvances)
+final approvedCashAdvancesProvider =
+    AutoDisposeFutureProvider<List<CashAdvanceEntity>>.internal(
+  approvedCashAdvances,
+  name: r'approvedCashAdvancesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$approvedCashAdvancesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef ApprovedCashAdvancesRef
+    = AutoDisposeFutureProviderRef<List<CashAdvanceEntity>>;
 String _$cashAdvanceDetailStreamHash() =>
     r'e859c30011a4863e2b84572fd980499953b8f5fa';
 

@@ -11,6 +11,9 @@ import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/cash_advance/presentation/pages/cash_advance_create_page.dart';
 import '../../features/cash_advance/presentation/pages/cash_advance_detail_page.dart';
 import '../../features/cash_advance/presentation/pages/cash_advance_list_page.dart';
+import '../../features/reimbursement/presentation/pages/reimbursement_create_page.dart';
+import '../../features/reimbursement/presentation/pages/reimbursement_detail_page.dart';
+import '../../features/reimbursement/presentation/pages/reimbursement_list_page.dart';
 import 'app_routes.dart';
 
 part 'app_router.g.dart';
@@ -150,23 +153,22 @@ List<RouteBase> _buildRoutes() => [
         ],
       ),
 
-      // ── Reimbursement (Step 6) ────────────────────────────────────────────
+      // ── Reimbursement ────────────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.reimbursementList,
         name: 'reimbursement-list',
-        builder: (_, __) => const _PlaceholderPage(title: 'Reimbursement'),
+        builder: (_, __) => const ReimbursementListPage(),
         routes: [
           GoRoute(
             path: 'create',
             name: 'reimbursement-create',
-            builder: (_, __) =>
-                const _PlaceholderPage(title: 'New Reimbursement'),
+            builder: (_, __) => const ReimbursementCreatePage(),
           ),
           GoRoute(
             path: ':id',
             name: 'reimbursement-detail',
-            builder: (_, state) => _PlaceholderPage(
-              title: 'Reimbursement #${state.pathParameters['id']}',
+            builder: (_, state) => ReimbursementDetailPage(
+              id: state.pathParameters['id']!,
             ),
           ),
         ],

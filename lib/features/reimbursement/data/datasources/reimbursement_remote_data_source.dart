@@ -28,6 +28,13 @@ abstract class ReimbursementRemoteDataSource {
   Future<ReimbursementModel> update(ReimbursementModel model);
 
   Future<void> delete(String id);
+
+  /// Submits the reimbursement (draft → pending_pic) and atomically settles the
+  /// linked Cash Advance document. See impl for full transaction details.
+  Future<ReimbursementModel> submitWithSettlement({
+    required ReimbursementModel model,
+    String? linkedCaId,
+  });
 }
 
 class ReimbursementRemoteDataSourceImpl extends BaseFirestoreRepository
@@ -131,4 +138,86 @@ class ReimbursementRemoteDataSourceImpl extends BaseFirestoreRepository
 
   @override
   Future<void> delete(String id) => _col.doc(id).delete();
+
+  /// Creates the reimbursement as pending_pic and atomically decrements
+  /// the linked Cash Advance's [outstandingAmount] in a single transaction.
+  ///
+  /// Settlement rules:
+  ///  1. Reads CA document to get current outstanding amount.
+  ///  2. Computes new outstanding = current - totalRequestedAmount.
+  ///  3. Writes updated outstanding + isFullySettled flag to CA.
+  ///  4. Creates reimbursement doc with status = pending_pic.
+  ///
+  /// If [linkedCaId] is null, the reimbursement is created without settlement.
+  Future<ReimbursementModel> submitWithSettlement({
+    required ReimbursementModel model,
+    String? linkedCaId,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final reimbRef = _col.doc();
+
+    if (linkedCaId == null) {
+      // No linked CA — simple create with pending_pic status.
+      final data = {
+        ...model.toFirestore(),
+        'id': reimbRef.id,
+        'status': 'pending_pic',
+        'submittedAt': now,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      await reimbRef.set(data);
+      return model.copyWith(id: reimbRef.id, status: 'pending_pic');
+    }
+
+    // Linked to a Cash Advance — run atomic settlement transaction.
+    final caRef =
+        _firestore.collection('cash_advances').doc(linkedCaId);
+
+    String newReimbId = reimbRef.id;
+
+    await _firestore.runTransaction((txn) async {
+      // ── 1. Read CA to get current outstanding ───────────────────────────────
+      final caSnap = await txn.get(caRef);
+      if (!caSnap.exists) {
+        throw FirebaseException(
+          plugin: 'cloud_firestore',
+          code: 'not-found',
+          message: 'Linked cash advance $linkedCaId not found.',
+        );
+      }
+
+      final caData = caSnap.data()!;
+      final approvedAmt = (caData['approvedAmount'] as num?)?.toDouble() ?? 0.0;
+      final currentOutstanding =
+          (caData['outstandingAmount'] as num?)?.toDouble() ?? approvedAmt;
+
+      // ── 2. Compute new outstanding ──────────────────────────────────────────
+      final newOutstanding = currentOutstanding - model.totalRequestedAmount;
+      final isFullySettled = newOutstanding <= 0;
+
+      // ── 3. Update Cash Advance document ────────────────────────────────────
+      txn.update(caRef, {
+        'outstandingAmount': newOutstanding,
+        'isFullySettled': isFullySettled,
+        'updatedAt': now,
+      });
+
+      // ── 4. Create Reimbursement document ───────────────────────────────────
+      txn.set(reimbRef, {
+        ...model.toFirestore(),
+        'id': newReimbId,
+        'status': 'pending_pic',
+        'submittedAt': now,
+        'createdAt': now,
+        'updatedAt': now,
+      });
+    });
+
+    return model.copyWith(
+      id: newReimbId,
+      status: 'pending_pic',
+      submittedAtMs: now,
+    );
+  }
 }

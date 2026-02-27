@@ -216,6 +216,57 @@ class _ReimbursementDetailStreamProviderElement
   String get id => (origin as ReimbursementDetailStreamProvider).id;
 }
 
+String _$createReimbursementUseCaseHash() =>
+    r'd93e8db56ed590c16492ec2a0a28ee3ebe1fd5cb';
+
+/// See also [createReimbursementUseCase].
+@ProviderFor(createReimbursementUseCase)
+final createReimbursementUseCaseProvider =
+    Provider<CreateReimbursementUseCase>.internal(
+  createReimbursementUseCase,
+  name: r'createReimbursementUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$createReimbursementUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef CreateReimbursementUseCaseRef = ProviderRef<CreateReimbursementUseCase>;
+String _$submitReimbursementUseCaseHash() =>
+    r'b1a0a8a2a47fbfe5c295a15c01a88bc8cd2a8f2a';
+
+/// See also [submitReimbursementUseCase].
+@ProviderFor(submitReimbursementUseCase)
+final submitReimbursementUseCaseProvider =
+    Provider<SubmitReimbursementUseCase>.internal(
+  submitReimbursementUseCase,
+  name: r'submitReimbursementUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$submitReimbursementUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef SubmitReimbursementUseCaseRef = ProviderRef<SubmitReimbursementUseCase>;
+String _$getReimbursementUseCaseHash() =>
+    r'ebebc8b83297ba1908f7ce4f65a05dfa04b019e4';
+
+/// See also [getReimbursementUseCase].
+@ProviderFor(getReimbursementUseCase)
+final getReimbursementUseCaseProvider =
+    Provider<GetReimbursementUseCase>.internal(
+  getReimbursementUseCase,
+  name: r'getReimbursementUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getReimbursementUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef GetReimbursementUseCaseRef = ProviderRef<GetReimbursementUseCase>;
 String _$reimbursementListControllerHash() =>
     r'4bef22b70138e2652134af86787d68fb1eb19d8e';
 
@@ -252,5 +303,23 @@ final reimbursementPendingControllerProvider = AutoDisposeNotifierProvider<
 
 typedef _$ReimbursementPendingController
     = AutoDisposeNotifier<ReimbursementPendingState>;
+String _$reimbursementFormControllerHash() =>
+    r'5bff5371e35154bba7049ee04acf188021c07767';
+
+/// See also [ReimbursementFormController].
+@ProviderFor(ReimbursementFormController)
+final reimbursementFormControllerProvider = AutoDisposeNotifierProvider<
+    ReimbursementFormController, ReimbursementFormState>.internal(
+  ReimbursementFormController.new,
+  name: r'reimbursementFormControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$reimbursementFormControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ReimbursementFormController
+    = AutoDisposeNotifier<ReimbursementFormState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

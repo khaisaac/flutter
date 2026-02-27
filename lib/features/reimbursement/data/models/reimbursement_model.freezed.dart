@@ -291,6 +291,8 @@ mixin _$ReimbursementModel {
   double? get totalApprovedAmount => throw _privateConstructorUsedError;
   String get currency => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
+  String? get linkedCashAdvanceId => throw _privateConstructorUsedError;
+  String? get linkedCashAdvancePurpose => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
   String? get picUid => throw _privateConstructorUsedError;
   String? get financeUid => throw _privateConstructorUsedError;
@@ -330,6 +332,8 @@ abstract class $ReimbursementModelCopyWith<$Res> {
       double? totalApprovedAmount,
       String currency,
       String description,
+      String? linkedCashAdvanceId,
+      String? linkedCashAdvancePurpose,
       String status,
       String? picUid,
       String? financeUid,
@@ -370,6 +374,8 @@ class _$ReimbursementModelCopyWithImpl<$Res, $Val extends ReimbursementModel>
     Object? totalApprovedAmount = freezed,
     Object? currency = null,
     Object? description = null,
+    Object? linkedCashAdvanceId = freezed,
+    Object? linkedCashAdvancePurpose = freezed,
     Object? status = null,
     Object? picUid = freezed,
     Object? financeUid = freezed,
@@ -427,6 +433,14 @@ class _$ReimbursementModelCopyWithImpl<$Res, $Val extends ReimbursementModel>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      linkedCashAdvanceId: freezed == linkedCashAdvanceId
+          ? _value.linkedCashAdvanceId
+          : linkedCashAdvanceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      linkedCashAdvancePurpose: freezed == linkedCashAdvancePurpose
+          ? _value.linkedCashAdvancePurpose
+          : linkedCashAdvancePurpose // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -510,6 +524,8 @@ abstract class _$$ReimbursementModelImplCopyWith<$Res>
       double? totalApprovedAmount,
       String currency,
       String description,
+      String? linkedCashAdvanceId,
+      String? linkedCashAdvancePurpose,
       String status,
       String? picUid,
       String? financeUid,
@@ -548,6 +564,8 @@ class __$$ReimbursementModelImplCopyWithImpl<$Res>
     Object? totalApprovedAmount = freezed,
     Object? currency = null,
     Object? description = null,
+    Object? linkedCashAdvanceId = freezed,
+    Object? linkedCashAdvancePurpose = freezed,
     Object? status = null,
     Object? picUid = freezed,
     Object? financeUid = freezed,
@@ -605,6 +623,14 @@ class __$$ReimbursementModelImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      linkedCashAdvanceId: freezed == linkedCashAdvanceId
+          ? _value.linkedCashAdvanceId
+          : linkedCashAdvanceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      linkedCashAdvancePurpose: freezed == linkedCashAdvancePurpose
+          ? _value.linkedCashAdvancePurpose
+          : linkedCashAdvancePurpose // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -683,6 +709,8 @@ class _$ReimbursementModelImpl extends _ReimbursementModel {
       this.totalApprovedAmount,
       this.currency = 'IDR',
       this.description = '',
+      this.linkedCashAdvanceId,
+      this.linkedCashAdvancePurpose,
       this.status = 'draft',
       this.picUid,
       this.financeUid,
@@ -736,6 +764,10 @@ class _$ReimbursementModelImpl extends _ReimbursementModel {
   @JsonKey()
   final String description;
   @override
+  final String? linkedCashAdvanceId;
+  @override
+  final String? linkedCashAdvancePurpose;
+  @override
   @JsonKey()
   final String status;
   @override
@@ -782,7 +814,7 @@ class _$ReimbursementModelImpl extends _ReimbursementModel {
 
   @override
   String toString() {
-    return 'ReimbursementModel(id: $id, submittedByUid: $submittedByUid, submittedByName: $submittedByName, projectId: $projectId, projectName: $projectName, items: $items, totalRequestedAmount: $totalRequestedAmount, totalApprovedAmount: $totalApprovedAmount, currency: $currency, description: $description, status: $status, picUid: $picUid, financeUid: $financeUid, picNote: $picNote, financeNote: $financeNote, rejectionReason: $rejectionReason, createdAtMs: $createdAtMs, submittedAtMs: $submittedAtMs, approvedByPicAtMs: $approvedByPicAtMs, approvedByFinanceAtMs: $approvedByFinanceAtMs, rejectedAtMs: $rejectedAtMs, paidAtMs: $paidAtMs, updatedAtMs: $updatedAtMs, attachments: $attachments, history: $history)';
+    return 'ReimbursementModel(id: $id, submittedByUid: $submittedByUid, submittedByName: $submittedByName, projectId: $projectId, projectName: $projectName, items: $items, totalRequestedAmount: $totalRequestedAmount, totalApprovedAmount: $totalApprovedAmount, currency: $currency, description: $description, linkedCashAdvanceId: $linkedCashAdvanceId, linkedCashAdvancePurpose: $linkedCashAdvancePurpose, status: $status, picUid: $picUid, financeUid: $financeUid, picNote: $picNote, financeNote: $financeNote, rejectionReason: $rejectionReason, createdAtMs: $createdAtMs, submittedAtMs: $submittedAtMs, approvedByPicAtMs: $approvedByPicAtMs, approvedByFinanceAtMs: $approvedByFinanceAtMs, rejectedAtMs: $rejectedAtMs, paidAtMs: $paidAtMs, updatedAtMs: $updatedAtMs, attachments: $attachments, history: $history)';
   }
 
   @override
@@ -808,6 +840,11 @@ class _$ReimbursementModelImpl extends _ReimbursementModel {
                 other.currency == currency) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.linkedCashAdvanceId, linkedCashAdvanceId) ||
+                other.linkedCashAdvanceId == linkedCashAdvanceId) &&
+            (identical(
+                    other.linkedCashAdvancePurpose, linkedCashAdvancePurpose) ||
+                other.linkedCashAdvancePurpose == linkedCashAdvancePurpose) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.picUid, picUid) || other.picUid == picUid) &&
             (identical(other.financeUid, financeUid) ||
@@ -850,6 +887,8 @@ class _$ReimbursementModelImpl extends _ReimbursementModel {
         totalApprovedAmount,
         currency,
         description,
+        linkedCashAdvanceId,
+        linkedCashAdvancePurpose,
         status,
         picUid,
         financeUid,
@@ -894,6 +933,8 @@ abstract class _ReimbursementModel extends ReimbursementModel {
       final double? totalApprovedAmount,
       final String currency,
       final String description,
+      final String? linkedCashAdvanceId,
+      final String? linkedCashAdvancePurpose,
       final String status,
       final String? picUid,
       final String? financeUid,
@@ -934,6 +975,10 @@ abstract class _ReimbursementModel extends ReimbursementModel {
   String get currency;
   @override
   String get description;
+  @override
+  String? get linkedCashAdvanceId;
+  @override
+  String? get linkedCashAdvancePurpose;
   @override
   String get status;
   @override

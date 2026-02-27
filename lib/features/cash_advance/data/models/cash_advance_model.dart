@@ -42,6 +42,8 @@ class CashAdvanceModel with _$CashAdvanceModel {
     int? updatedAtMs,
     @Default([]) List<AttachmentModel> attachments,
     @Default([]) List<ApprovalHistoryModel> history,
+    double? outstandingAmount,
+    @Default(false) bool isFullySettled,
   }) = _CashAdvanceModel;
 
   factory CashAdvanceModel.fromJson(Map<String, dynamic> json) =>
@@ -64,6 +66,9 @@ class CashAdvanceModel with _$CashAdvanceModel {
       'rejectedAtMs': _tsToMillis(data['rejectedAt']),
       'paidAtMs': _tsToMillis(data['paidAt']),
       'updatedAtMs': _tsToMillis(data['updatedAt']),
+      // Settlement fields (may not exist in older documents)
+      'outstandingAmount': (data['outstandingAmount'] as num?)?.toDouble(),
+      'isFullySettled': data['isFullySettled'] as bool? ?? false,
     });
   }
 
@@ -93,6 +98,8 @@ class CashAdvanceModel with _$CashAdvanceModel {
         'rejectedAt': rejectedAtMs,
         'paidAt': paidAtMs,
         'updatedAt': updatedAtMs,
+        'outstandingAmount': outstandingAmount,
+        'isFullySettled': isFullySettled,
       };
 
   // ── Domain Mapping ────────────────────────────────────────────────────────
@@ -135,6 +142,8 @@ class CashAdvanceModel with _$CashAdvanceModel {
             : null,
         attachments: attachments.map((a) => a.toEntity()).toList(),
         history: history.map((h) => h.toEntity()).toList(),
+        outstandingAmount: outstandingAmount,
+        isFullySettled: isFullySettled,
       );
 
   factory CashAdvanceModel.fromEntity(CashAdvanceEntity e) => CashAdvanceModel(
@@ -163,6 +172,8 @@ class CashAdvanceModel with _$CashAdvanceModel {
         updatedAtMs: e.updatedAt?.millisecondsSinceEpoch,
         attachments: e.attachments.map(AttachmentModel.fromEntity).toList(),
         history: e.history.map(ApprovalHistoryModel.fromEntity).toList(),
+        outstandingAmount: e.outstandingAmount,
+        isFullySettled: e.isFullySettled,
       );
 
   // ── Private Helpers ───────────────────────────────────────────────────────

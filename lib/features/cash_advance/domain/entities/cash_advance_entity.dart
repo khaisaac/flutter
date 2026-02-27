@@ -51,6 +51,20 @@ class CashAdvanceEntity extends Equatable {
   final List<AttachmentEntity> attachments;
   final List<ApprovalHistoryEntity> history;
 
+  // ── Settlement Tracking ───────────────────────────────────────────────────
+  /// Remaining amount still to be reimbursed against this advance.
+  /// Null until the first reimbursement is submitted against this CA;
+  /// thereafter decremented per submitted reimbursement.
+  final double? outstandingAmount;
+
+  /// True when [outstandingAmount] has reached zero (fully settled).
+  final bool isFullySettled;
+
+  /// The effective outstanding amount, defaulting to [approvedAmount] when
+  /// no reimbursement has been submitted yet.
+  double get effectiveOutstanding =>
+      outstandingAmount ?? approvedAmount ?? requestedAmount;
+
   const CashAdvanceEntity({
     required this.id,
     required this.submittedByUid,
@@ -77,6 +91,8 @@ class CashAdvanceEntity extends Equatable {
     this.updatedAt,
     this.attachments = const [],
     this.history = const [],
+    this.outstandingAmount,
+    this.isFullySettled = false,
   });
 
   bool get isDraft => status == SubmissionStatus.draft;
@@ -113,6 +129,8 @@ class CashAdvanceEntity extends Equatable {
     DateTime? updatedAt,
     List<AttachmentEntity>? attachments,
     List<ApprovalHistoryEntity>? history,
+    double? outstandingAmount,
+    bool? isFullySettled,
   }) {
     return CashAdvanceEntity(
       id: id ?? this.id,
@@ -140,6 +158,8 @@ class CashAdvanceEntity extends Equatable {
       updatedAt: updatedAt ?? this.updatedAt,
       attachments: attachments ?? this.attachments,
       history: history ?? this.history,
+      outstandingAmount: outstandingAmount ?? this.outstandingAmount,
+      isFullySettled: isFullySettled ?? this.isFullySettled,
     );
   }
 
