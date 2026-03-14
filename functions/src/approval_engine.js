@@ -335,7 +335,7 @@ exports.validateApprovalRequest = functions
       });
 
       // Notification document (triggers approvalNotificationFanout)
-      const submitterUid = snap.data().createdByUid ?? '';
+      const submitterUid = snap.data().submittedByUid ?? '';
       const notifRef = db.collection('notifications').doc();
       txn.set(notifRef, {
         type: 'approval_update', module, documentId, actorUid, actorName,

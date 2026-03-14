@@ -49,6 +49,21 @@ final firebaseStorageProvider = Provider<FirebaseStorage>.internal(
 );
 
 typedef FirebaseStorageRef = ProviderRef<FirebaseStorage>;
+String _$firebaseMessagingHash() => r'c96a03147f08cc0d5bdb4c4736051f7f9b1c7e65';
+
+/// See also [firebaseMessaging].
+@ProviderFor(firebaseMessaging)
+final firebaseMessagingProvider = Provider<FirebaseMessaging>.internal(
+  firebaseMessaging,
+  name: r'firebaseMessagingProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$firebaseMessagingHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef FirebaseMessagingRef = ProviderRef<FirebaseMessaging>;
 String _$secureStorageHash() => r'f63d2696b410eab4e14c393e87ba9b6d911139a0';
 
 /// See also [secureStorage].

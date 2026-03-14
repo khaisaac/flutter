@@ -186,7 +186,7 @@ class ApprovalService {
     txn.set(logRef, logModel.toFirestore());
 
     // ── 9. Write notification document for CF push fanout ─────────────────
-    final submitterUid = data['createdByUid'] as String? ?? '';
+    final submitterUid = data['submittedByUid'] as String? ?? '';
     _notificationWriter.writeInTransaction(
       transaction: txn,
       request: request,

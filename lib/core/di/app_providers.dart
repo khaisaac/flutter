@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -22,8 +23,9 @@ FirebaseFirestore firestore(FirestoreRef ref) => FirebaseFirestore.instance;
 FirebaseStorage firebaseStorage(FirebaseStorageRef ref) =>
     FirebaseStorage.instance;
 
-// FirebaseMessaging provider added in the Push Notifications step.
-// firebase_messaging requires Dart >=3.4.0 / Flutter >=3.22.
+@Riverpod(keepAlive: true)
+FirebaseMessaging firebaseMessaging(FirebaseMessagingRef ref) =>
+  FirebaseMessaging.instance;
 
 // ── Secure Storage ─────────────────────────────────────────────────────────
 

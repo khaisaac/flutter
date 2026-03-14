@@ -36,6 +36,7 @@ class NotificationWriter {
   /// Writes a notification record inside the provided [transaction].
   ///
   /// [toStatus] drives who should be notified:
+  ///  - `pending_pic`     → notify the `pic_project` FCM topic
   ///  - `pending_finance` → notify the `finance` FCM topic
   ///  - any other status  → notify the submission owner by uid
   void writeInTransaction({
@@ -73,6 +74,7 @@ class NotificationWriter {
   /// Returns the FCM topic role when notification fans out to a role group.
   /// Null means the recipient is a specific user (see [_recipientUid]).
   String? _recipientRole(String toStatus) => switch (toStatus) {
+      'pending_pic' => AppConstants.rolePicProject,
         'pending_finance' => AppConstants.roleFinance,
         _ => null,
       };

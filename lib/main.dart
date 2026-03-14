@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/notifications/notification_service.dart';
 import 'core/utils/logger.dart';
 import 'firebase_options.dart';
 
@@ -31,8 +33,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // FCM background handler will be registered in the Push Notifications step.
-  // firebase_messaging requires Dart >=3.4.0 — add after Flutter upgrade.
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   AppLogger.i('Firebase initialised — project: reimbursement-hexa');
 

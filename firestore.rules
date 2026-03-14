@@ -145,6 +145,17 @@ service cloud.firestore {
       allow update: if (uid() == userId && !('role' in request.resource.data.diff(resource.data).affectedKeys()))
                     || isAdmin();
       allow delete: if isAdmin();
+
+      // Device tokens for FCM fanout:
+      //   /users/{uid}/deviceTokens/{token}
+      // Only the token owner can create/update/delete their tokens.
+      match /deviceTokens/{tokenId} {
+        allow read: if isAuthed() && (uid() == userId || isAdmin());
+        allow create, update: if isAuthed() && uid() == userId
+          && request.resource.data.token is string
+          && request.resource.data.uid == userId;
+        allow delete: if isAuthed() && uid() == userId;
+      }
     }
 
     // ========================================================================
